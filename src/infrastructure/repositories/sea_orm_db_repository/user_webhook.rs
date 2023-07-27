@@ -15,7 +15,7 @@ impl IReadOnlyRepository<UserWebhook> for SeaOrmDbRepository {
             .one(self.db.get_connection())
             .await?
             .ok_or(anyhow::anyhow!("there is no such row with key {uuid}"))?;
-        entity.try_into()
+        Ok(entity.into())
     }
     async fn get_all(&self) -> anyhow::Result<Vec<UserWebhook>> {
         unimplemented!()
@@ -25,7 +25,7 @@ impl IReadOnlyRepository<UserWebhook> for SeaOrmDbRepository {
 impl IMutableRepository<UserWebhook> for SeaOrmDbRepository {
     async fn update(&self, entity: UserWebhook) -> anyhow::Result<UserWebhook> {
         let mut stmts = self.statements.lock().await;
-        let active_model = UserWebhookModel::try_from(entity.to_owned())?.into_set();
+        let active_model = UserWebhookModel::from(entity.clone()).into_set();
         let stmt = UserWebhookEntity::update(active_model)
             .build(self.db.get_connection().get_database_backend());
         stmts.push(stmt);

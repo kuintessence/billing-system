@@ -1,6 +1,6 @@
 use super::SeaOrmDbRepository;
-use alice_architecture::repository::IReadOnlyRepository;
 use crate::kernel::prelude::*;
+use alice_architecture::repository::IReadOnlyRepository;
 use database_model::system::prelude::*;
 use sea_orm::EntityTrait;
 use std::str::FromStr;

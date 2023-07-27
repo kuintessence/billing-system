@@ -1,4 +1,6 @@
 use alice_architecture::model::IAggregateRoot;
+use anyhow::anyhow;
+use database_model::system::prelude::NodeInstanceModel;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -32,4 +34,21 @@ pub struct TaskUsedResource {
     pub start_time: i64,
     /// 结束时间
     pub end_time: i64,
+}
+
+impl TryFrom<NodeInstanceModel> for NodeInstance {
+    type Error = anyhow::Error;
+
+    fn try_from(model: NodeInstanceModel) -> Result<Self, Self::Error> {
+        let id = model.id;
+        Ok(Self {
+            id,
+            flow_id: model.flow_instance_id,
+            resource_meter: match model.resource_meter {
+                Some(v) => serde_json::from_value(v)?,
+                None => anyhow::bail!("node {id} has no resource meter"),
+            },
+            cluster_id: model.cluster_id.ok_or(anyhow!("node {id} didn't be assigned to a cluster"))?,
+        })
+    }
 }

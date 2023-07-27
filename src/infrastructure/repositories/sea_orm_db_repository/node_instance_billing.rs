@@ -14,7 +14,7 @@ impl IReadOnlyRepository<NodeInstanceBilling> for SeaOrmDbRepository {
             .await?
             .ok_or(anyhow::anyhow!("there is no such row with key {uuid}"))?;
         entity.rescale_all_to(2);
-        entity.try_into()
+        Ok(entity.into())
     }
     async fn get_all(&self) -> anyhow::Result<Vec<NodeInstanceBilling>> {
         unimplemented!()

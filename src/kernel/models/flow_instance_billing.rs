@@ -1,3 +1,5 @@
+use chrono::Utc;
+use database_model::system::prelude::FlowInstanceBillingModel;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -17,4 +19,64 @@ pub struct FlowInstanceBilling {
     pub wall_time: i64,
     pub total_price: Decimal,
     pub user_id: Uuid,
+}
+
+impl From<FlowInstanceBillingModel> for FlowInstanceBilling {
+    fn from(model: FlowInstanceBillingModel) -> Self {
+        let FlowInstanceBillingModel {
+            id,
+            flow_instance_id,
+            cpu,
+            memory,
+            storage,
+            cpu_time,
+            wall_time,
+            total_price,
+            user_id,
+            created_time: _,
+            modified_time: _,
+        } = model;
+
+        Self {
+            id,
+            flow_instance_id,
+            cpu,
+            memory,
+            storage,
+            cpu_time,
+            wall_time,
+            total_price,
+            user_id,
+        }
+    }
+}
+
+impl From<FlowInstanceBilling> for FlowInstanceBillingModel {
+    fn from(value: FlowInstanceBilling) -> Self {
+        let FlowInstanceBilling {
+            id,
+            flow_instance_id,
+            cpu,
+            memory,
+            storage,
+            cpu_time,
+            wall_time,
+            total_price,
+            user_id,
+        } = value;
+
+        Self {
+            id,
+            flow_instance_id,
+            cpu,
+            memory,
+            storage,
+            cpu_time,
+            wall_time,
+            total_price,
+            user_id,
+            created_time: Utc::now(),
+            modified_time: Utc::now(),
+        }
+    }
 }

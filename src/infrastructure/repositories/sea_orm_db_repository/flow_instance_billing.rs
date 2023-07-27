@@ -14,7 +14,7 @@ impl IReadOnlyRepository<FlowInstanceBilling> for SeaOrmDbRepository {
             .await?
             .ok_or(anyhow::anyhow!("there is no such row with key {uuid}"))?;
         entity.rescale_all_to(2);
-        entity.try_into()
+        Ok(entity.into())
     }
     async fn get_all(&self) -> anyhow::Result<Vec<FlowInstanceBilling>> {
         unimplemented!()
@@ -71,7 +71,7 @@ impl IFlowInstanceBillingRepository for SeaOrmDbRepository {
             .await?
             .ok_or(anyhow::anyhow!("No such Flow Instence"))?;
         model.rescale_all_to(2);
-        model.try_into()
+        Ok(model.into())
     }
     async fn insert_or_update(&self, entity: FlowInstanceBilling) -> anyhow::Result<()> {
         let mut stmts = self.statements.lock().await;
