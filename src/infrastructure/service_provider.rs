@@ -1,16 +1,19 @@
-use super::{sea_orm_db_repository::SeaOrmDbRepository, user_webhook::UserWebhookService};
-use crate::controllers;
-use alice_architecture::hosting::IBackgroundService;
-use alice_di::{build_container, IServiceProvider};
-use alice_infrastructure::{
-    data::db::Database,
-    message_queue::{
-        InternalMessageQueueProducer, KafkaMessageQueue, KafkaSingleTopicMessageQueueConsumer,
-    },
-    ConsumerFn,
-};
-use crate::kernel::prelude::*;
 use std::sync::Arc;
+
+use alice_architecture::hosting::IBackgroundService;
+use alice_di::build_container;
+use alice_di::IServiceProvider;
+use alice_infrastructure::data::db::Database;
+use alice_infrastructure::message_queue::{
+    InternalMessageQueueProducer, KafkaMessageQueue, KafkaSingleTopicMessageQueueConsumer,
+};
+use alice_infrastructure::ConsumerFn;
+
+use super::databases::SeaOrmDbRepository;
+use super::services::UserWebhookService;
+use crate::api;
+use crate::domain::services::*;
+use crate::services::FlowNodeBillingService;
 
 build_container! {
     #[derive(Clone)]
@@ -75,7 +78,7 @@ build_container! {
     }
     after_build {
         let arc_sp = Arc::new(sp.clone());
-        let consumer: ConsumerFn<ServiceProvider> = controllers::billing_system::bill_consumer;
+        let consumer: ConsumerFn<ServiceProvider> = api::controller::bill_consumer;
         let consumers = vec![consumer];
         let config: alice_infrastructure::config::CommonConfig = arc_sp.provide();
         let client_options = config.mq().client_options().clone();

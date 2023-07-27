@@ -1,9 +1,9 @@
-use infrastructure::Host;
-
-mod controllers;
+mod api;
 mod infrastructure;
-mod kernel;
+mod domain;
+mod services;
+mod server;
 
 fn main() {
-    Host::new().run();
+    server::run();
 }
