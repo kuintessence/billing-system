@@ -37,7 +37,7 @@ impl IMutableRepository<NodeInstanceBilling> for SeaOrmDbRepository {
         Ok(entity)
     }
     async fn insert(&self, entity: NodeInstanceBilling) -> anyhow::Result<NodeInstanceBilling> {
-        log::debug!("nb: {entity:#?}");
+        tracing::debug!("nb: {entity:#?}");
         NodeInstanceBillingEntity::insert(
             NodeInstanceBillingModel::try_from(entity.to_owned())?.into_set(),
         )

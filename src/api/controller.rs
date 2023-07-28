@@ -40,7 +40,7 @@ pub async fn get_flow_nodes_bill(
             web::Json(ResponseBase::ok(Some(response)))
         }
         Err(e) => {
-            log::error!("{e}");
+            tracing::error!("{e}");
             web::Json(ResponseBase::err(500, "Interval error"))
         }
     }
@@ -52,6 +52,6 @@ pub async fn bill_consumer(
     #[inject] service: std::sync::Arc<dyn IFlowNodeBillingService + Send + Sync>,
     #[serialize] node_instance_id: NodeInstanceId,
 ) -> anyhow::Result<()> {
-    log::info!("Receive msg: {node_instance_id:#?}");
+    tracing::info!("Receive msg: {node_instance_id:#?}");
     service.record_bill(&node_instance_id.node_instance_id).await
 }

@@ -44,10 +44,10 @@ impl SeaOrmDbRepository {
 impl Drop for SeaOrmDbRepository {
     fn drop(&mut self) {
         if !self.can_drop.load(Ordering::Relaxed) {
-            log::trace!("{}", self.can_drop.load(Ordering::Relaxed));
+            tracing::trace!("{}", self.can_drop.load(Ordering::Relaxed));
             let stmts = self.statements.try_lock().unwrap();
             let sqls = stmts.iter().map(|x| x.to_string()).collect::<Vec<String>>().join("\n");
-            log::trace!("Unused sql statements:\n{sqls}")
+            tracing::trace!("Unused sql statements:\n{sqls}")
         }
     }
 }

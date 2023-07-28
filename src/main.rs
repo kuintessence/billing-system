@@ -1,8 +1,8 @@
 mod api;
-mod infrastructure;
 mod domain;
-mod services;
+mod infrastructure;
 mod server;
+mod services;
 
 fn main() {
     server::run();

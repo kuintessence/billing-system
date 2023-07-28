@@ -18,7 +18,7 @@ impl IClusterIdSettingsRepository for SeaOrmDbRepository {
             .await?
             .ok_or(anyhow::anyhow!("No such cluster"))?;
         model.rescale_all_to(10);
-        log::debug!("{model:#?}");
+        tracing::debug!("{model:#?}");
         Ok(model.into())
     }
 }

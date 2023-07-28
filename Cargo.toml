@@ -35,7 +35,6 @@ anyhow = "1.0"
 # log
 tracing = "0.1"
 tracing-actix-web = "0.7"
-log = "0.4"
 # web
 actix-web = { version = "4.3", features = ["rustls"] }
 actix-easy-multipart = "3.0"

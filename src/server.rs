@@ -55,7 +55,7 @@ pub async fn async_run() {
     tokio::select! {
         _ = initialize_web_host(service_provider) => (),
         _ = tokio::signal::ctrl_c() => {
-            log::info!("Stoping Services (ctrl-c handling).");
+            tracing::info!("Stoping Services (ctrl-c handling).");
             for handle in handles {
                 handle.abort()
             }
@@ -90,7 +90,7 @@ pub async fn initialize_web_host(sp: Arc<ServiceProvider>) {
     .run()
     .await
     {
-        Ok(_) => log::info!("Web server stopped successfully."),
-        Err(e) => log::error!("Web server into erorr: {}", e),
+        Ok(_) => tracing::info!("Web server stopped successfully."),
+        Err(e) => tracing::error!("Web server into erorr: {}", e),
     }
 }
