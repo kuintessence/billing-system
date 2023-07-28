@@ -1,11 +1,9 @@
-use alice_architecture::model::IAggregateRoot;
+use alice_architecture::IAggregateRoot;
 use database_model::system::prelude::FlowInstanceModel;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-impl IAggregateRoot for FlowInstance {}
-
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, IAggregateRoot)]
 pub struct FlowInstance {
     pub id: Uuid,
     pub user_id: Uuid,

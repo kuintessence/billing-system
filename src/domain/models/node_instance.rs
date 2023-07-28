@@ -1,12 +1,10 @@
-use alice_architecture::model::IAggregateRoot;
+use alice_architecture::IAggregateRoot;
 use anyhow::anyhow;
 use database_model::system::prelude::NodeInstanceModel;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-impl IAggregateRoot for NodeInstance {}
-
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, IAggregateRoot)]
 pub struct NodeInstance {
     pub id: Uuid,
     pub flow_id: Uuid,
@@ -48,7 +46,9 @@ impl TryFrom<NodeInstanceModel> for NodeInstance {
                 Some(v) => serde_json::from_value(v)?,
                 None => anyhow::bail!("node {id} has no resource meter"),
             },
-            cluster_id: model.cluster_id.ok_or(anyhow!("node {id} didn't be assigned to a cluster"))?,
+            cluster_id: model
+                .cluster_id
+                .ok_or(anyhow!("node {id} didn't be assigned to a cluster"))?,
         })
     }
 }

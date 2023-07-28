@@ -1,11 +1,11 @@
+use alice_architecture::IAggregateRoot;
 use chrono::Utc;
 use database_model::system::prelude::ClusterIdSettingsModel;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-impl alice_architecture::model::IAggregateRoot for ClusterIdSettings {}
-#[derive(Clone, Serialize, Deserialize, Default, Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, IAggregateRoot)]
 pub struct ClusterIdSettings {
     pub id: Uuid,
     pub cluster_id: Uuid,

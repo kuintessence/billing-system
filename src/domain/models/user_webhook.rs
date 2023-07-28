@@ -1,9 +1,9 @@
+use alice_architecture::IAggregateRoot;
 use database_model::system::prelude::UserWebhookModel;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-impl alice_architecture::model::IAggregateRoot for UserWebhook {}
-#[derive(Clone, Serialize, Deserialize, Default, Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, IAggregateRoot)]
 pub struct UserWebhook {
     pub id: Uuid,
     pub user_id: Uuid,
