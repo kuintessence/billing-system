@@ -2,12 +2,6 @@ use crate::domain::models::{FlowInstanceBilling, NodeInstanceBilling};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct NodeInstanceId {
-    pub node_instance_id: String,
-}
-
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Url {

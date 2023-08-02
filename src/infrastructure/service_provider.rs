@@ -57,7 +57,7 @@ build_container! {
             Arc::new(UserWebhookService::new(repo,http_client.clone()))
         }
     }
-    scoped billing_service: Arc<dyn IFlowNodeBillingService + Send +Sync>{
+    scoped billing_service: Arc<dyn IFlowNodeBillingService>{
         build {
             let repo = sea_orm_repository.clone();
             let service = user_webhook_service.clone();

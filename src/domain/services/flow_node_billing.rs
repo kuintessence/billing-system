@@ -1,7 +1,7 @@
 use crate::domain::models::{FlowInstanceBilling, NodeInstanceBilling};
 
 #[async_trait::async_trait]
-pub trait IFlowNodeBillingService {
+pub trait IFlowNodeBillingService: Send + Sync {
     /// 获取工作流节点计费信息
     async fn get_bill(
         &self,

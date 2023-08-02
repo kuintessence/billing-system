@@ -32,7 +32,7 @@ pub async fn webhook_subscribe(
 #[get("billing-system/GetFlowNodesBill/{flow_instance_id}")]
 pub async fn get_flow_nodes_bill(
     flow_instance_id: Path<String>,
-    #[inject] service: Arc<dyn IFlowNodeBillingService + Send + Sync>,
+    #[inject] service: Arc<dyn IFlowNodeBillingService>,
 ) -> web::Json<ResponseBase<FlowBillResponse>> {
     match service.get_bill(&flow_instance_id).await {
         Ok(el) => {
@@ -49,9 +49,9 @@ pub async fn get_flow_nodes_bill(
 #[alice_di::auto_inject(ServiceProvider, scoped = "None")]
 #[alice_web::message_consumer]
 pub async fn bill_consumer(
-    #[inject] service: std::sync::Arc<dyn IFlowNodeBillingService + Send + Sync>,
-    #[serialize] node_instance_id: NodeInstanceId,
+    #[inject] service: Arc<dyn IFlowNodeBillingService>,
+    #[serialize] node_instance_id: String,
 ) -> anyhow::Result<()> {
     tracing::info!("Receive msg: {node_instance_id:#?}");
-    service.record_bill(&node_instance_id.node_instance_id).await
+    service.record_bill(&node_instance_id).await
 }
