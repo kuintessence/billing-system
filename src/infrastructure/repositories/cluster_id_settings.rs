@@ -6,11 +6,11 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use uuid::Uuid;
 
 use crate::domain::models::ClusterIdSettings;
-use crate::domain::repositories::IClusterIdSettingsRepository;
+use crate::domain::repositories::ClusterIdSettingsRepository;
 use crate::infrastructure::databases::SeaOrmDbRepository;
 
 #[async_trait::async_trait]
-impl IClusterIdSettingsRepository for SeaOrmDbRepository {
+impl ClusterIdSettingsRepository for SeaOrmDbRepository {
     async fn get_by_cluster_id(&self, id: &str) -> anyhow::Result<ClusterIdSettings> {
         let mut model = ClusterIdSettingsEntity::find()
             .filter(ClusterIdSettingsColumn::ClusterId.eq(Uuid::from_str(id)?))

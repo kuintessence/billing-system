@@ -10,10 +10,10 @@ use alice_infrastructure::message_queue::{
 use alice_infrastructure::ConsumerFn;
 
 use super::databases::SeaOrmDbRepository;
-use super::services::UserWebhookService;
+use super::services::UserWebhookServiceImpl;
 use crate::api;
 use crate::domain::services::*;
-use crate::services::FlowNodeBillingService;
+use crate::services::FlowNodeBillingServiceImpl;
 
 build_container! {
     #[derive(Clone)]
@@ -51,21 +51,21 @@ build_container! {
         }
     }
 
-    scoped user_webhook_service: Arc<dyn IUserWebhookService + Send +Sync>{
+    scoped user_webhook_service: Arc<dyn UserWebhookService>{
         build {
             let repo = sea_orm_repository.clone();
-            Arc::new(UserWebhookService::new(repo,http_client.clone()))
+            Arc::new(UserWebhookServiceImpl::new(repo,http_client.clone()))
         }
     }
-    scoped billing_service: Arc<dyn IFlowNodeBillingService>{
+    scoped billing_service: Arc<dyn FlowNodeBillingService>{
         build {
             let repo = sea_orm_repository.clone();
             let service = user_webhook_service.clone();
-            Arc::new(FlowNodeBillingService::new(repo.clone(), repo.clone(), repo.clone(),repo.clone(),repo,service))
+            Arc::new(FlowNodeBillingServiceImpl::new(repo.clone(), repo.clone(), repo.clone(),repo.clone(),repo,service))
         }
     }
 
-    internal_message_queue_producer: Arc<InternalMessageQueueProducer>{
+    internal_message_queue_producer: Arc<InternalMessageQueueProducer> {
         build{
             Arc::new(InternalMessageQueueProducer::new())
         }

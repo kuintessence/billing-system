@@ -4,17 +4,17 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::models::UserWebhook;
-use crate::domain::repositories::IUserWebhookRepository;
-use crate::domain::services::IUserWebhookService;
+use crate::domain::repositories::UserWebhookRepository;
+use crate::domain::services::UserWebhookService;
 
-pub struct UserWebhookService {
-    user_webhook_repo: Arc<dyn IUserWebhookRepository + Send + Sync>,
+pub struct UserWebhookServiceImpl {
+    user_webhook_repo: Arc<dyn UserWebhookRepository>,
     client: Arc<reqwest::Client>,
 }
 
-impl UserWebhookService {
+impl UserWebhookServiceImpl {
     pub fn new(
-        user_webhook_repo: Arc<dyn IUserWebhookRepository + Send + Sync>,
+        user_webhook_repo: Arc<dyn UserWebhookRepository>,
         client: Arc<reqwest::Client>,
     ) -> Self {
         Self {
@@ -25,7 +25,7 @@ impl UserWebhookService {
 }
 
 #[async_trait::async_trait]
-impl IUserWebhookService for UserWebhookService {
+impl UserWebhookService for UserWebhookServiceImpl {
     async fn register_webhook(&self, user_id: &str, url: &str) -> anyhow::Result<()> {
         let user_webhook = UserWebhook {
             id: Uuid::new_v4(),

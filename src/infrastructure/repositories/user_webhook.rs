@@ -8,7 +8,7 @@ use sea_orm::{ConnectionTrait, EntityTrait, QueryTrait};
 use uuid::Uuid;
 
 use crate::domain::models::UserWebhook;
-use crate::domain::repositories::IUserWebhookRepository;
+use crate::domain::repositories::UserWebhookRepository;
 use crate::infrastructure::databases::SeaOrmDbRepository;
 
 #[async_trait::async_trait]
@@ -67,7 +67,7 @@ impl IMutableRepository<UserWebhook> for SeaOrmDbRepository {
 }
 impl IDBRepository<UserWebhook> for SeaOrmDbRepository {}
 #[async_trait::async_trait]
-impl IUserWebhookRepository for SeaOrmDbRepository {
+impl UserWebhookRepository for SeaOrmDbRepository {
     async fn get_url_by_user_id(&self, id: &str) -> anyhow::Result<String> {
         let model = UserWebhookEntity::find()
             .filter(UserWebhookColumn::UserId.eq(Uuid::from_str(id)?))

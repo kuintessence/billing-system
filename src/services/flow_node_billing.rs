@@ -11,23 +11,23 @@ use crate::domain::models::*;
 use crate::domain::repositories::*;
 use crate::domain::services::*;
 
-pub struct FlowNodeBillingService {
-    flow_bill_repo: Arc<dyn IFlowInstanceBillingRepository + Send + Sync>,
-    node_bill_repo: Arc<dyn INodeInstanceBillingRepository + Send + Sync>,
+pub struct FlowNodeBillingServiceImpl {
+    flow_bill_repo: Arc<dyn FlowInstanceBillingRepository>,
+    node_bill_repo: Arc<dyn NodeInstanceBillingRepository>,
     node_instance_repo: Arc<dyn IReadOnlyRepository<NodeInstance> + Send + Sync>,
-    cluster_setting_repo: Arc<dyn IClusterIdSettingsRepository + Send + Sync>,
+    cluster_setting_repo: Arc<dyn ClusterIdSettingsRepository>,
     flow_instance_repo: Arc<dyn IReadOnlyRepository<FlowInstance> + Send + Sync>,
-    user_webhook_service: Arc<dyn IUserWebhookService + Send + Sync>,
+    user_webhook_service: Arc<dyn UserWebhookService>,
 }
 
-impl FlowNodeBillingService {
+impl FlowNodeBillingServiceImpl {
     pub fn new(
-        flow_bill_repo: Arc<dyn IFlowInstanceBillingRepository + Send + Sync>,
-        node_bill_repo: Arc<dyn INodeInstanceBillingRepository + Send + Sync>,
+        flow_bill_repo: Arc<dyn FlowInstanceBillingRepository>,
+        node_bill_repo: Arc<dyn NodeInstanceBillingRepository>,
         node_instance_repo: Arc<dyn IReadOnlyRepository<NodeInstance> + Send + Sync>,
-        cluster_setting_repo: Arc<dyn IClusterIdSettingsRepository + Send + Sync>,
+        cluster_setting_repo: Arc<dyn ClusterIdSettingsRepository>,
         flow_instance_repo: Arc<dyn IReadOnlyRepository<FlowInstance> + Send + Sync>,
-        user_webhook_service: Arc<dyn IUserWebhookService + Send + Sync>,
+        user_webhook_service: Arc<dyn UserWebhookService>,
     ) -> Self {
         Self {
             flow_bill_repo,
@@ -41,7 +41,7 @@ impl FlowNodeBillingService {
 }
 
 #[async_trait::async_trait]
-impl IFlowNodeBillingService for FlowNodeBillingService {
+impl FlowNodeBillingService for FlowNodeBillingServiceImpl {
     async fn get_bill(
         &self,
         flow_instance_id: &str,

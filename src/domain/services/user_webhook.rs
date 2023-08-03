@@ -1,5 +1,5 @@
 #[async_trait::async_trait]
-pub trait IUserWebhookService {
+pub trait UserWebhookService: Send + Sync {
     /// 注册
     async fn register_webhook(&self, user_id: &str, url: &str) -> anyhow::Result<()>;
     /// 发布消息

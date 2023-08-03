@@ -1,6 +1,6 @@
 use crate::domain::models::ClusterIdSettings;
 
 #[async_trait::async_trait]
-pub trait IClusterIdSettingsRepository {
+pub trait ClusterIdSettingsRepository: Send + Sync {
     async fn get_by_cluster_id(&self, id: &str) -> anyhow::Result<ClusterIdSettings>;
 }

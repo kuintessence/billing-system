@@ -7,7 +7,7 @@ use sea_orm::{prelude::Uuid, sea_query::OnConflict, ColumnTrait, QueryFilter};
 use sea_orm::{ConnectionTrait, EntityTrait, QueryTrait};
 
 use crate::domain::models::NodeInstanceBilling;
-use crate::domain::repositories::INodeInstanceBillingRepository;
+use crate::domain::repositories::NodeInstanceBillingRepository;
 use crate::infrastructure::databases::SeaOrmDbRepository;
 
 #[async_trait::async_trait]
@@ -68,7 +68,7 @@ impl IMutableRepository<NodeInstanceBilling> for SeaOrmDbRepository {
 impl IDBRepository<NodeInstanceBilling> for SeaOrmDbRepository {}
 
 #[async_trait::async_trait]
-impl INodeInstanceBillingRepository for SeaOrmDbRepository {
+impl NodeInstanceBillingRepository for SeaOrmDbRepository {
     async fn get_all_by_flow_instance_id(
         &self,
         id: &str,

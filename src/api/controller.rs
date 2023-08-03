@@ -16,7 +16,7 @@ use crate::infrastructure::ServiceProvider;
 #[post("billing-system/WebhookSubscribe")]
 pub async fn webhook_subscribe(
     web::Json(url): web::Json<Url>,
-    #[inject] service: Arc<dyn IUserWebhookService + Send + Sync>,
+    #[inject] service: Arc<dyn UserWebhookService>,
 ) -> web::Json<ResponseBase<String>> {
     let user_id = url.user_id;
     let url = url.url;
@@ -32,7 +32,7 @@ pub async fn webhook_subscribe(
 #[get("billing-system/GetFlowNodesBill/{flow_instance_id}")]
 pub async fn get_flow_nodes_bill(
     flow_instance_id: Path<String>,
-    #[inject] service: Arc<dyn IFlowNodeBillingService>,
+    #[inject] service: Arc<dyn FlowNodeBillingService>,
 ) -> web::Json<ResponseBase<FlowBillResponse>> {
     match service.get_bill(&flow_instance_id).await {
         Ok(el) => {
@@ -49,7 +49,7 @@ pub async fn get_flow_nodes_bill(
 #[alice_di::auto_inject(ServiceProvider, scoped = "None")]
 #[alice_web::message_consumer]
 pub async fn bill_consumer(
-    #[inject] service: Arc<dyn IFlowNodeBillingService>,
+    #[inject] service: Arc<dyn FlowNodeBillingService>,
     #[serialize] node_instance_id: String,
 ) -> anyhow::Result<()> {
     tracing::info!("Receive msg: {node_instance_id:#?}");
