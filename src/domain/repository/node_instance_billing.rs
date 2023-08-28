@@ -1,4 +1,4 @@
-use crate::domain::models::NodeInstanceBilling;
+use crate::domain::model::NodeInstanceBilling;
 use alice_architecture::repository::IDBRepository;
 
 #[async_trait::async_trait]

@@ -1,4 +1,4 @@
-use crate::domain::models::ClusterIdSettings;
+use crate::domain::model::ClusterIdSettings;
 
 #[async_trait::async_trait]
 pub trait ClusterIdSettingsRepository: Send + Sync {

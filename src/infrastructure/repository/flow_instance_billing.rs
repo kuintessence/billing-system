@@ -7,9 +7,9 @@ use database_model::utils::WithDecimalFileds;
 use sea_orm::{prelude::Uuid, sea_query::OnConflict, ColumnTrait, QueryFilter};
 use sea_orm::{ConnectionTrait, EntityTrait, QueryTrait};
 
-use crate::domain::models::FlowInstanceBilling;
-use crate::domain::repositories::FlowInstanceBillingRepository;
-use crate::infrastructure::databases::SeaOrmDbRepository;
+use crate::domain::model::FlowInstanceBilling;
+use crate::domain::repository::FlowInstanceBillingRepository;
+use crate::infrastructure::database::SeaOrmDbRepository;
 
 #[async_trait::async_trait]
 impl IReadOnlyRepository<FlowInstanceBilling> for SeaOrmDbRepository {

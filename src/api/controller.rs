@@ -7,7 +7,7 @@ use alice_architecture::base_dto::ResponseBase;
 use alice_di::{actix_auto_inject, IServiceProvider};
 
 use super::dto::*;
-use crate::domain::services::*;
+use crate::domain::service::*;
 use crate::infrastructure::ServiceProvider;
 
 #[actix_auto_inject(ServiceProvider, scoped = "None")]

@@ -1,4 +1,4 @@
-use crate::domain::models::{FlowInstanceBilling, NodeInstanceBilling};
+use crate::domain::model::{FlowInstanceBilling, NodeInstanceBilling};
 
 #[async_trait::async_trait]
 pub trait FlowNodeBillingService: Send + Sync {

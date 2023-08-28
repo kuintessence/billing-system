@@ -7,9 +7,9 @@ use sea_orm::{sea_query::OnConflict, ColumnTrait, QueryFilter};
 use sea_orm::{ConnectionTrait, EntityTrait, QueryTrait};
 use uuid::Uuid;
 
-use crate::domain::models::UserWebhook;
-use crate::domain::repositories::UserWebhookRepository;
-use crate::infrastructure::databases::SeaOrmDbRepository;
+use crate::domain::model::UserWebhook;
+use crate::domain::repository::UserWebhookRepository;
+use crate::infrastructure::database::SeaOrmDbRepository;
 
 #[async_trait::async_trait]
 impl IReadOnlyRepository<UserWebhook> for SeaOrmDbRepository {

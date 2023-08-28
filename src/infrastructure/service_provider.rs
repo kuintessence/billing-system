@@ -9,11 +9,11 @@ use alice_infrastructure::message_queue::{
 };
 use alice_infrastructure::ConsumerFn;
 
-use super::databases::SeaOrmDbRepository;
-use super::services::UserWebhookServiceImpl;
+use super::database::SeaOrmDbRepository;
+use super::service::UserWebhookServiceImpl;
 use crate::api;
-use crate::domain::services::*;
-use crate::services::FlowNodeBillingServiceImpl;
+use crate::domain::service::*;
+use crate::service::FlowNodeBillingServiceImpl;
 
 build_container! {
     #[derive(Clone)]

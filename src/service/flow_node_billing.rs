@@ -7,9 +7,9 @@ use evalexpr::{eval_float_with_context, Context, ContextWithMutableVariables};
 use rust_decimal::Decimal;
 use uuid::Uuid;
 
-use crate::domain::models::*;
-use crate::domain::repositories::*;
-use crate::domain::services::*;
+use crate::domain::model::*;
+use crate::domain::repository::*;
+use crate::domain::service::*;
 
 pub struct FlowNodeBillingServiceImpl {
     flow_bill_repo: Arc<dyn FlowInstanceBillingRepository>,

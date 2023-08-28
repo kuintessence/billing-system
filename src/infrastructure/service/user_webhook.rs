@@ -3,9 +3,9 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use crate::domain::models::UserWebhook;
-use crate::domain::repositories::UserWebhookRepository;
-use crate::domain::services::UserWebhookService;
+use crate::domain::model::UserWebhook;
+use crate::domain::repository::UserWebhookRepository;
+use crate::domain::service::UserWebhookService;
 
 pub struct UserWebhookServiceImpl {
     user_webhook_repo: Arc<dyn UserWebhookRepository>,

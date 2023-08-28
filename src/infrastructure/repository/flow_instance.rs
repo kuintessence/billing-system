@@ -5,8 +5,8 @@ use database_model::system::prelude::*;
 use sea_orm::EntityTrait;
 use uuid::Uuid;
 
-use crate::domain::models::FlowInstance;
-use crate::infrastructure::databases::SeaOrmDbRepository;
+use crate::domain::model::FlowInstance;
+use crate::infrastructure::database::SeaOrmDbRepository;
 
 #[async_trait::async_trait]
 impl IReadOnlyRepository<FlowInstance> for SeaOrmDbRepository {

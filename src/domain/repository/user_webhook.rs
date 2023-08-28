@@ -1,4 +1,4 @@
-use crate::domain::models::UserWebhook;
+use crate::domain::model::UserWebhook;
 use alice_architecture::repository::IDBRepository;
 
 #[async_trait::async_trait]

@@ -1,4 +1,4 @@
-use crate::domain::models::FlowInstanceBilling;
+use crate::domain::model::FlowInstanceBilling;
 use alice_architecture::repository::IDBRepository;
 
 #[async_trait::async_trait]

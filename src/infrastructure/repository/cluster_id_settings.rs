@@ -5,9 +5,9 @@ use database_model::utils::WithDecimalFileds;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use uuid::Uuid;
 
-use crate::domain::models::ClusterIdSettings;
-use crate::domain::repositories::ClusterIdSettingsRepository;
-use crate::infrastructure::databases::SeaOrmDbRepository;
+use crate::domain::model::ClusterIdSettings;
+use crate::domain::repository::ClusterIdSettingsRepository;
+use crate::infrastructure::database::SeaOrmDbRepository;
 
 #[async_trait::async_trait]
 impl ClusterIdSettingsRepository for SeaOrmDbRepository {

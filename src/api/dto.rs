@@ -1,4 +1,4 @@
-use crate::domain::models::{FlowInstanceBilling, NodeInstanceBilling};
+use crate::domain::model::{FlowInstanceBilling, NodeInstanceBilling};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
