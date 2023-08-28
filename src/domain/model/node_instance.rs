@@ -9,7 +9,7 @@ pub struct NodeInstance {
     pub id: Uuid,
     pub flow_id: Uuid,
     pub resource_meter: TaskUsedResource,
-    pub cluster_id: Uuid,
+    pub queue_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -46,9 +46,7 @@ impl TryFrom<NodeInstanceModel> for NodeInstance {
                 Some(v) => serde_json::from_value(v)?,
                 None => anyhow::bail!("node {id} has no resource meter"),
             },
-            cluster_id: model
-                .cluster_id
-                .ok_or(anyhow!("node {id} didn't be assigned to a cluster"))?,
+            queue_id: model.queue_id.ok_or(anyhow!("node {id} didn't be assigned to a queue"))?,
         })
     }
 }

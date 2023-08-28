@@ -12,20 +12,20 @@ use crate::domain::repository::*;
 use crate::domain::service::*;
 
 pub struct FlowNodeBillingServiceImpl {
-    flow_bill_repo: Arc<dyn FlowInstanceBillingRepository>,
-    node_bill_repo: Arc<dyn NodeInstanceBillingRepository>,
+    flow_bill_repo: Arc<dyn FlowInstanceBillingRepo>,
+    node_bill_repo: Arc<dyn NodeInstanceBillingRepo>,
     node_instance_repo: Arc<dyn IReadOnlyRepository<NodeInstance> + Send + Sync>,
-    cluster_setting_repo: Arc<dyn ClusterIdSettingsRepository>,
+    queue_bill_config_repo: Arc<dyn QueueBillConfigRepo>,
     flow_instance_repo: Arc<dyn IReadOnlyRepository<FlowInstance> + Send + Sync>,
     user_webhook_service: Arc<dyn UserWebhookService>,
 }
 
 impl FlowNodeBillingServiceImpl {
     pub fn new(
-        flow_bill_repo: Arc<dyn FlowInstanceBillingRepository>,
-        node_bill_repo: Arc<dyn NodeInstanceBillingRepository>,
+        flow_bill_repo: Arc<dyn FlowInstanceBillingRepo>,
+        node_bill_repo: Arc<dyn NodeInstanceBillingRepo>,
         node_instance_repo: Arc<dyn IReadOnlyRepository<NodeInstance> + Send + Sync>,
-        cluster_setting_repo: Arc<dyn ClusterIdSettingsRepository>,
+        queue_bill_config_repo: Arc<dyn QueueBillConfigRepo>,
         flow_instance_repo: Arc<dyn IReadOnlyRepository<FlowInstance> + Send + Sync>,
         user_webhook_service: Arc<dyn UserWebhookService>,
     ) -> Self {
@@ -33,7 +33,7 @@ impl FlowNodeBillingServiceImpl {
             flow_bill_repo,
             node_bill_repo,
             node_instance_repo,
-            cluster_setting_repo,
+            queue_bill_config_repo,
             flow_instance_repo,
             user_webhook_service,
         }
@@ -54,15 +54,14 @@ impl FlowNodeBillingService for FlowNodeBillingServiceImpl {
     async fn record_bill(&self, node_instance_id: &str) -> anyhow::Result<()> {
         let node_instance = self.node_instance_repo.get_by_id(node_instance_id).await?;
         let resource_meter = node_instance.resource_meter;
-        let cluster_id = node_instance.cluster_id;
+        let queue_id = node_instance.queue_id;
         let flow_instance_id = node_instance.flow_id;
         let flow_instance =
             self.flow_instance_repo.get_by_id(flow_instance_id.to_string().as_str()).await?;
         let user_id = flow_instance.user_id;
-        let cluster_settings =
-            self.cluster_setting_repo.get_by_cluster_id(&cluster_id.to_string()).await?;
-        println!("CS:\n\n{cluster_settings:#?}");
-        let formula = cluster_settings.formula;
+        let queue_bill_config =
+            self.queue_bill_config_repo.get_by_queue_id(&queue_id.to_string()).await?;
+        let formula = queue_bill_config.formula;
 
         let (n_cpu, n_memory, n_storage, n_cpu_time, n_wall_time) = (
             resource_meter.cpu as f64,
@@ -73,11 +72,11 @@ impl FlowNodeBillingService for FlowNodeBillingServiceImpl {
         );
 
         let (u_cpu, u_memory, u_storage, u_cpu_time, u_wall_time) = (
-            cluster_settings.cpu.mantissa() as f64,
-            cluster_settings.memory.mantissa() as f64,
-            cluster_settings.storage.mantissa() as f64,
-            cluster_settings.cpu_time.mantissa() as f64,
-            cluster_settings.wall_time.mantissa() as f64,
+            queue_bill_config.cpu.mantissa() as f64,
+            queue_bill_config.memory.mantissa() as f64,
+            queue_bill_config.storage.mantissa() as f64,
+            queue_bill_config.cpu_time.mantissa() as f64,
+            queue_bill_config.wall_time.mantissa() as f64,
         );
 
         let mut context = evalexpr::context_map! {
@@ -206,9 +205,9 @@ mod tests {
             resource_meter.cpu_time as f64,
             resource_meter.wall_time as f64,
         );
-        let cluster_settings = ClusterIdSettings {
+        let queue_bill_config = QueueBillConfig {
             id: Uuid::default(),
-            cluster_id: Uuid::default(),
+            queue_id: Uuid::default(),
             cpu: Decimal::new(1, 10),
             memory: Decimal::new(1, 10),
             storage: Decimal::new(1, 10),
@@ -225,13 +224,13 @@ mod tests {
             .to_string(),
         };
         let (u_cpu, u_memory, u_storage, u_cpu_time, u_wall_time) = (
-            cluster_settings.cpu.mantissa() as f64,
-            cluster_settings.memory.mantissa() as f64,
-            cluster_settings.storage.mantissa() as f64,
-            cluster_settings.cpu_time.mantissa() as f64,
-            cluster_settings.wall_time.mantissa() as f64,
+            queue_bill_config.cpu.mantissa() as f64,
+            queue_bill_config.memory.mantissa() as f64,
+            queue_bill_config.storage.mantissa() as f64,
+            queue_bill_config.cpu_time.mantissa() as f64,
+            queue_bill_config.wall_time.mantissa() as f64,
         );
-        let formula = cluster_settings.formula;
+        let formula = queue_bill_config.formula;
         let mut prices = serde_json::from_str::<HashMap<String, String>>(&formula).unwrap();
         let mut context = evalexpr::context_map! {
             "n_cpu" => cpu,
