@@ -1,11 +1,9 @@
-use alice_architecture::IAggregateRoot;
-use chrono::Utc;
-use database_model::system::prelude::NodeInstanceBillingModel;
+use alice_architecture::model::AggregateRoot;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, IAggregateRoot)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, AggregateRoot)]
 pub struct NodeInstanceBilling {
     pub id: Uuid,
     pub node_instance_id: Uuid,
@@ -19,9 +17,9 @@ pub struct NodeInstanceBilling {
     pub formula: String,
 }
 
-impl From<NodeInstanceBillingModel> for NodeInstanceBilling {
-    fn from(model: NodeInstanceBillingModel) -> Self {
-        let NodeInstanceBillingModel {
+impl From<database_model::node_instance_billing::Model> for NodeInstanceBilling {
+    fn from(model: database_model::node_instance_billing::Model) -> Self {
+        let database_model::node_instance_billing::Model {
             id,
             node_instance_id,
             flow_instance_id,
@@ -47,38 +45,6 @@ impl From<NodeInstanceBillingModel> for NodeInstanceBilling {
             wall_time,
             price,
             formula,
-        }
-    }
-}
-
-impl From<NodeInstanceBilling> for NodeInstanceBillingModel {
-    fn from(value: NodeInstanceBilling) -> Self {
-        let NodeInstanceBilling {
-            id,
-            node_instance_id,
-            flow_instance_id,
-            cpu,
-            memory,
-            storage,
-            cpu_time,
-            wall_time,
-            price,
-            formula,
-        } = value;
-
-        Self {
-            id,
-            node_instance_id,
-            flow_instance_id,
-            cpu,
-            memory,
-            storage,
-            cpu_time,
-            wall_time,
-            price,
-            formula,
-            created_time: Utc::now(),
-            modified_time: Utc::now(),
         }
     }
 }

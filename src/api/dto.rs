@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Url {
-    pub user_id: String,
     pub url: String,
 }
 
@@ -24,7 +23,6 @@ impl From<(FlowInstanceBilling, Vec<NodeInstanceBilling>)> for FlowBillResponse 
                 cpu: flow.cpu,
                 memory: flow.memory,
                 storage: flow.storage,
-                cpu_time: flow.cpu_time,
                 wall_time: flow.wall_time,
                 total_price: flow.total_price,
             },
@@ -48,10 +46,9 @@ impl From<(FlowInstanceBilling, Vec<NodeInstanceBilling>)> for FlowBillResponse 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FlowBill {
-    pub cpu: i64,
+    pub cpu: i32,
     pub memory: i64,
     pub storage: i64,
-    pub cpu_time: i64,
     pub wall_time: i64,
     pub total_price: Decimal,
 }

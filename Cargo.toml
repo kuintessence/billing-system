@@ -19,7 +19,7 @@ features = ["full"]
 git = "https://github.com/kuintessence/alice"
 
 [dependencies.database-model]
-git = "https://github.com/kuintessence/database-model"
+git = "https://github.com/kuintessence/database"
 
 [dependencies]
 # async
@@ -49,11 +49,12 @@ chrono = { version = "0.4", features = ["serde"] }
 # number
 rust_decimal = "1.29"
 # middlewares
-sea-orm = { version = "0.11", default-features = false, features = [
+sea-orm = { version = "0.12", default-features = false, features = [
   "runtime-actix-rustls",
   "sqlx-postgres",
   "with-rust_decimal",
 ] }
 # miscellaneous
 colored = "2.0"
-evalexpr = "8.0"
+evalexpr = "11.3"
+typed-builder = "0.18"

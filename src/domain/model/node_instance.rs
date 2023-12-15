@@ -1,10 +1,9 @@
-use alice_architecture::IAggregateRoot;
+use alice_architecture::model::AggregateRoot;
 use anyhow::anyhow;
-use database_model::system::prelude::NodeInstanceModel;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, IAggregateRoot)]
+#[derive(Serialize, Deserialize, AggregateRoot)]
 pub struct NodeInstance {
     pub id: Uuid,
     pub flow_id: Uuid,
@@ -34,10 +33,10 @@ pub struct TaskUsedResource {
     pub end_time: i64,
 }
 
-impl TryFrom<NodeInstanceModel> for NodeInstance {
+impl TryFrom<database_model::node_instance::Model> for NodeInstance {
     type Error = anyhow::Error;
 
-    fn try_from(model: NodeInstanceModel) -> Result<Self, Self::Error> {
+    fn try_from(model: database_model::node_instance::Model) -> Result<Self, Self::Error> {
         let id = model.id;
         Ok(Self {
             id,

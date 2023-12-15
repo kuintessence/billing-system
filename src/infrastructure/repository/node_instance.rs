@@ -1,25 +1,17 @@
-use std::str::FromStr;
-
-use alice_architecture::repository::IReadOnlyRepository;
-use database_model::system::prelude::*;
+use alice_architecture::repository::ReadOnlyRepository;
 use sea_orm::EntityTrait;
 use uuid::Uuid;
 
 use crate::domain::model::NodeInstance;
-use crate::infrastructure::database::SeaOrmDbRepository;
+use crate::infrastructure::database::OrmRepo;
 
 #[async_trait::async_trait]
-impl IReadOnlyRepository<NodeInstance> for SeaOrmDbRepository {
-    async fn get_by_id(&self, uuid: &str) -> anyhow::Result<NodeInstance> {
-        let model = NodeInstanceEntity::find_by_id(Uuid::from_str(uuid)?)
+impl ReadOnlyRepository<NodeInstance> for OrmRepo {
+    async fn get_by_id(&self, uuid: Uuid) -> anyhow::Result<NodeInstance> {
+        let model = database_model::prelude::NodeInstance::find_by_id(uuid)
             .one(self.db.get_connection())
             .await?
             .ok_or(anyhow::anyhow!("No such Node Instance"))?;
         model.try_into()
-    }
-
-    /// 获取所有对象
-    async fn get_all(&self) -> anyhow::Result<Vec<NodeInstance>> {
-        unimplemented!()
     }
 }

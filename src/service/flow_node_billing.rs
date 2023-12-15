@@ -1,8 +1,7 @@
 use std::collections::HashMap;
-use std::str::FromStr;
 use std::sync::Arc;
 
-use alice_architecture::repository::IReadOnlyRepository;
+use alice_architecture::repository::ReadOnlyRepository;
 use evalexpr::{eval_float_with_context, Context, ContextWithMutableVariables};
 use rust_decimal::Decimal;
 use uuid::Uuid;
@@ -14,20 +13,20 @@ use crate::domain::service::*;
 pub struct FlowNodeBillingServiceImpl {
     flow_bill_repo: Arc<dyn FlowInstanceBillingRepo>,
     node_bill_repo: Arc<dyn NodeInstanceBillingRepo>,
-    node_instance_repo: Arc<dyn IReadOnlyRepository<NodeInstance> + Send + Sync>,
+    node_instance_repo: Arc<dyn ReadOnlyRepository<NodeInstance> + Send + Sync>,
     queue_bill_config_repo: Arc<dyn QueueBillConfigRepo>,
-    flow_instance_repo: Arc<dyn IReadOnlyRepository<FlowInstance> + Send + Sync>,
-    user_webhook_service: Arc<dyn UserWebhookService>,
+    flow_instance_repo: Arc<dyn ReadOnlyRepository<FlowInstance> + Send + Sync>,
+    // user_webhook_service: Arc<dyn UserWebhookService>,
 }
 
 impl FlowNodeBillingServiceImpl {
     pub fn new(
         flow_bill_repo: Arc<dyn FlowInstanceBillingRepo>,
         node_bill_repo: Arc<dyn NodeInstanceBillingRepo>,
-        node_instance_repo: Arc<dyn IReadOnlyRepository<NodeInstance> + Send + Sync>,
+        node_instance_repo: Arc<dyn ReadOnlyRepository<NodeInstance> + Send + Sync>,
         queue_bill_config_repo: Arc<dyn QueueBillConfigRepo>,
-        flow_instance_repo: Arc<dyn IReadOnlyRepository<FlowInstance> + Send + Sync>,
-        user_webhook_service: Arc<dyn UserWebhookService>,
+        flow_instance_repo: Arc<dyn ReadOnlyRepository<FlowInstance> + Send + Sync>,
+        // user_webhook_service: Arc<dyn UserWebhookService>,
     ) -> Self {
         Self {
             flow_bill_repo,
@@ -35,7 +34,7 @@ impl FlowNodeBillingServiceImpl {
             node_instance_repo,
             queue_bill_config_repo,
             flow_instance_repo,
-            user_webhook_service,
+            // user_webhook_service,
         }
     }
 }
@@ -44,20 +43,19 @@ impl FlowNodeBillingServiceImpl {
 impl FlowNodeBillingService for FlowNodeBillingServiceImpl {
     async fn get_bill(
         &self,
-        flow_instance_id: &str,
+        flow_instance_id: Uuid,
     ) -> anyhow::Result<(FlowInstanceBilling, Vec<NodeInstanceBilling>)> {
         let flow_bill = self.flow_bill_repo.get_by_flow_instance_id(flow_instance_id).await?;
         let node_bills = self.node_bill_repo.get_all_by_flow_instance_id(flow_instance_id).await?;
         Ok((flow_bill, node_bills))
     }
 
-    async fn record_bill(&self, node_instance_id: &str) -> anyhow::Result<()> {
+    async fn record_bill(&self, node_instance_id: Uuid) -> anyhow::Result<()> {
         let node_instance = self.node_instance_repo.get_by_id(node_instance_id).await?;
         let resource_meter = node_instance.resource_meter;
         let queue_id = node_instance.queue_id;
         let flow_instance_id = node_instance.flow_id;
-        let flow_instance =
-            self.flow_instance_repo.get_by_id(flow_instance_id.to_string().as_str()).await?;
+        let flow_instance = self.flow_instance_repo.get_by_id(flow_instance_id).await?;
         let user_id = flow_instance.user_id;
         let queue_bill_config =
             self.queue_bill_config_repo.get_by_queue_id(&queue_id.to_string()).await?;
@@ -122,7 +120,7 @@ impl FlowNodeBillingService for FlowNodeBillingServiceImpl {
         *p_node_txt = format!("{p_node_txt} = {p_node}");
         let node_bill = NodeInstanceBilling {
             id: Uuid::new_v4(),
-            node_instance_id: Uuid::from_str(node_instance_id)?,
+            node_instance_id,
             flow_instance_id,
             cpu: n_cpu as i64,
             memory: n_memory as i64,
@@ -132,50 +130,39 @@ impl FlowNodeBillingService for FlowNodeBillingServiceImpl {
             price: p_node,
             formula: serde_json::to_string(&prices)?,
         };
-        let mut flow_bill = match self
-            .flow_bill_repo
-            .get_by_flow_instance_id(&flow_instance_id.to_string())
-            .await
-        {
-            Ok(el) => el,
-            Err(_) => {
-                self.flow_bill_repo
-                    .insert(FlowInstanceBilling {
+        let mut flow_bill =
+            match self.flow_bill_repo.get_by_flow_instance_id(flow_instance_id).await {
+                Ok(el) => el,
+                Err(_) => {
+                    let r = FlowInstanceBilling {
                         id: Uuid::new_v4(),
                         flow_instance_id,
                         cpu: 0,
                         memory: 0,
                         storage: 0,
-                        cpu_time: 0,
                         wall_time: 0,
                         total_price: Decimal::ZERO,
                         user_id,
-                    })
-                    .await?
-            }
-        };
+                    };
+                    self.flow_bill_repo.insert(&r).await?;
+                    r
+                }
+            };
 
-        flow_bill.cpu += n_cpu as i64;
+        flow_bill.cpu += n_cpu as i32;
         flow_bill.memory += n_memory as i64;
         flow_bill.storage += n_storage as i64;
-        flow_bill.cpu_time += n_cpu_time as i64;
         flow_bill.wall_time += n_wall_time as i64;
         flow_bill.total_price += p_node;
 
-        self.node_bill_repo.insert(node_bill).await?;
+        self.node_bill_repo.insert(&node_bill).await?;
         self.flow_bill_repo.insert_or_update(flow_bill).await?;
         self.flow_bill_repo.save_changed().await?;
 
-        let flow_bill = self
-            .flow_bill_repo
-            .get_by_flow_instance_id(flow_instance_id.to_string().as_str())
-            .await?;
-        let node_bills = self
-            .node_bill_repo
-            .get_all_by_flow_instance_id(flow_instance_id.to_string().as_str())
-            .await?;
-        let message = serde_json::to_string(&(flow_bill, node_bills))?;
-        self.user_webhook_service.send_message(&user_id.to_string(), &message).await?;
+        // let flow_bill = self.flow_bill_repo.get_by_flow_instance_id(flow_instance_id).await?;
+        // let node_bills = self.node_bill_repo.get_all_by_flow_instance_id(flow_instance_id).await?;
+        // let message = serde_json::to_string(&(flow_bill, node_bills))?;
+        // self.user_webhook_service.send_message(&user_id.to_string(), &message).await?;
         Ok(())
     }
 }

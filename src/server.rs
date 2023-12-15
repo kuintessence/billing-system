@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
 use actix_easy_multipart::MultipartFormConfig;
-use actix_rt::task::JoinHandle;
-use alice_architecture::IBackgroundService;
+use alice_architecture::background_service::BackgroundService;
 use alice_di::IServiceProvider;
 use alice_infrastructure::config::build_config;
 use alice_infrastructure::config::CommonConfig;
+use alice_infrastructure::message_queue::KafkaSingleTopicMessageQueueConsumer;
+use alice_infrastructure::telemetry::init_telemetry;
+use alice_infrastructure::ConsumerFn;
 use colored::Colorize;
 
 use crate::api;
@@ -35,28 +37,32 @@ pub async fn async_run() {
     };
 
     let common_config: alice_infrastructure::config::CommonConfig = service_provider.provide();
-    if let Err(e) = alice_infrastructure::telemetry::initialize_telemetry(common_config.telemetry())
-    {
+    if let Err(e) = init_telemetry(&common_config.telemetry) {
         return eprintln!("{}: {}", "Cannot build logger".red(), e);
     }
 
-    let tasks: Vec<Arc<dyn IBackgroundService + Send + Sync>> = service_provider.provide();
+    let background_services = async {
+        let arc_sp = service_provider.clone();
+        let consumer: ConsumerFn<ServiceProvider> = api::controller::bill_consumer;
+        let consumers = vec![consumer];
+        let client_options = common_config.mq.consumer.clone();
+        let topics = common_config.mq.topics;
+        let message_queue =
+            KafkaSingleTopicMessageQueueConsumer::new(&topics, client_options, arc_sp, consumers);
+        let services = [tokio::spawn(async move { message_queue.run().await })];
+        Result::<_, anyhow::Error>::Ok(services)
+    }
+    .await;
 
-    let handles = tasks
-        .into_iter()
-        .map(|x| {
-            tokio::spawn(async move {
-                let task = x.clone();
-                task.run().await
-            })
-        })
-        .collect::<Vec<JoinHandle<()>>>();
+    if let Err(e) = background_services {
+        return eprintln!("{}: {}", "Cannot start background services".red(), e);
+    }
 
     tokio::select! {
         _ = initialize_web_host(service_provider) => (),
         _ = tokio::signal::ctrl_c() => {
             tracing::info!("Stoping Services (ctrl-c handling).");
-            for handle in handles {
+            for handle in background_services.unwrap() {
                 handle.abort()
             }
             std::process::exit(0);
@@ -79,11 +85,11 @@ pub async fn initialize_web_host(sp: Arc<ServiceProvider>) {
             .app_data(actix_web::web::Data::from(sp.clone()))
             .wrap(tracing_actix_web::TracingLogger::default())
             .service(api::controller::get_flow_nodes_bill)
-            .service(api::controller::webhook_subscribe)
+        // .service(api::controller::webhook_subscribe)
     })
     .bind((
-        common_config.host().bind_address().to_owned(),
-        *common_config.host().bind_port(),
+        common_config.host.bind_address.to_owned(),
+        common_config.host.bind_port,
     ))
     .unwrap()
     .disable_signals()

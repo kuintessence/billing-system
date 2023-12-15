@@ -1,7 +1,6 @@
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 
-use alice_architecture::repository::{IDBRepository, IMutableRepository, IReadOnlyRepository};
 use database_model::system::prelude::*;
 use sea_orm::{sea_query::OnConflict, ColumnTrait, QueryFilter};
 use sea_orm::{ConnectionTrait, EntityTrait, QueryTrait};
@@ -9,10 +8,10 @@ use uuid::Uuid;
 
 use crate::domain::model::UserWebhook;
 use crate::domain::repository::UserWebhookRepo;
-use crate::infrastructure::database::SeaOrmDbRepository;
+use crate::infrastructure::database::OrmRepo;
 
 #[async_trait::async_trait]
-impl IReadOnlyRepository<UserWebhook> for SeaOrmDbRepository {
+impl IReadOnlyRepository<UserWebhook> for OrmRepo {
     async fn get_by_id(&self, uuid: &str) -> anyhow::Result<UserWebhook> {
         let entity = UserWebhookEntity::find()
             .filter(UserWebhookColumn::UserId.eq(Uuid::from_str(uuid)?))
@@ -26,7 +25,7 @@ impl IReadOnlyRepository<UserWebhook> for SeaOrmDbRepository {
     }
 }
 #[async_trait::async_trait]
-impl IMutableRepository<UserWebhook> for SeaOrmDbRepository {
+impl IMutableRepository<UserWebhook> for OrmRepo {
     async fn update(&self, entity: UserWebhook) -> anyhow::Result<UserWebhook> {
         let mut stmts = self.statements.lock().await;
         let active_model = UserWebhookModel::from(entity.clone()).into_set();
@@ -65,9 +64,9 @@ impl IMutableRepository<UserWebhook> for SeaOrmDbRepository {
         self.save_changed().await
     }
 }
-impl IDBRepository<UserWebhook> for SeaOrmDbRepository {}
+impl IDBRepository<UserWebhook> for OrmRepo {}
 #[async_trait::async_trait]
-impl UserWebhookRepo for SeaOrmDbRepository {
+impl UserWebhookRepo for OrmRepo {
     async fn get_url_by_user_id(&self, id: &str) -> anyhow::Result<String> {
         let model = UserWebhookEntity::find()
             .filter(UserWebhookColumn::UserId.eq(Uuid::from_str(id)?))

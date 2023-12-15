@@ -1,0 +1,15 @@
+telemetry:
+  console:
+    filter: "debug"
+host:
+  bind_address: "0.0.0.0"
+  bind_port: 80
+mq:
+  topics:
+    - "<replace>"
+  consumer:
+    bootstrap.servers: "<replace>"
+    group.id: "1"
+    enable.partition.eof: "false"
+    session.timeout.ms: "6000"
+    enable.auto.commit: "true"

@@ -1,16 +1,16 @@
-use alice_infrastructure::data::db::Database;
+use alice_infrastructure::data::Database;
 use sea_orm::{ConnectionTrait, Statement, TransactionTrait};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-pub struct SeaOrmDbRepository {
+pub struct OrmRepo {
     pub db: Arc<Database>,
     pub statements: Arc<Mutex<Vec<Statement>>>,
     pub can_drop: AtomicBool,
 }
 
-impl SeaOrmDbRepository {
+impl OrmRepo {
     pub fn new(db: Arc<Database>) -> Self {
         Self {
             db,
@@ -41,7 +41,7 @@ impl SeaOrmDbRepository {
     }
 }
 
-impl Drop for SeaOrmDbRepository {
+impl Drop for OrmRepo {
     fn drop(&mut self) {
         if !self.can_drop.load(Ordering::Relaxed) {
             tracing::trace!("{}", self.can_drop.load(Ordering::Relaxed));
